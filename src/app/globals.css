@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* Field-guide palette. Match levels share one scale across table, tree, legend and share grid. */
+:root {
+  --paper: #f6f1e6;
+  --card: #fffdf7;
+  --ink: #1f2a24;
+  --muted: #5f6b63;
+  --line: #ddd4c2;
+  --accent: #2f5d46;
+  --accent-ink: #ffffff;
+
+  --lvl-0: #9aa5a0; /* different order */
+  --lvl-1: #d9412b; /* same order */
+  --lvl-2: #ec8a1f; /* same family */
+  --lvl-3: #f2cf2e; /* same genus */
+  --lvl-4: #c9971a; /* the bird itself: gold */
+  --lvl-4-glow: #ffd766;
+  --off: #b9b2a3;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121714;
+    --card: #1a211d;
+    --ink: #ebe6d9;
+    --muted: #9ba59f;
+    --line: #2f3833;
+    --accent: #7cc19b;
+    --accent-ink: #0f1a14;
+    --lvl-0: #66716b;
+    --off: #4b544f;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), Georgia, serif;
+}
+
+html,
+body {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.sci {
+  font-style: italic;
+}
+
+/* ---------- taxonomy tree (react-d3-tree) ----------
+   `path.` raises specificity over the library's injected `.rd3t-link { stroke: #000 }`. */
+path.tree-link {
+  fill: none;
+  stroke: var(--off);
+  stroke-width: 1.5;
+  transition: stroke 400ms ease, stroke-width 400ms ease;
+}
+path.tree-link--lit {
+  stroke-width: 3.5;
+  stroke-linecap: round;
+  animation: branch-grow 700ms ease-out both;
+}
+path.tree-link--d1 { stroke: var(--lvl-1); }
+path.tree-link--d2 { stroke: var(--lvl-2); }
+path.tree-link--d3 { stroke: var(--lvl-3); }
+path.tree-link--d4 { stroke: var(--lvl-4); filter: drop-shadow(0 0 4px var(--lvl-4-glow)); }
+path.tree-link--mystery {
+  stroke: var(--muted);
+  stroke-dasharray: 4 4;
+  animation: march 1.2s linear infinite;
+}
+
+@keyframes branch-grow {
+  from { stroke-dasharray: 1000; stroke-dashoffset: 1000; }
+  to { stroke-dasharray: 1000; stroke-dashoffset: 0; }
+}
+@keyframes march {
+  to { stroke-dashoffset: -16; }
+}
+@media (prefers-reduced-motion: reduce) {
+  path.tree-link--lit, path.tree-link--mystery { animation: none; }
+}
+
+.tree-node text {
+  fill: var(--ink);
+  stroke: none;
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+.tree-node .tree-sub {
+  fill: var(--muted);
+}
