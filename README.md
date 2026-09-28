@@ -10,10 +10,10 @@ see for the first time; here, the day's mystery bird is your lifer.
 
   | Color | Meaning |
   | --- | --- |
-  | ⬜ gray | different order (only *Aves* in common) |
-  | 🟥 red | same order |
+  | ⬜ white (light gray on the board) | different order (only *Aves* in common) |
+  | 🟨 yellow | same order |
   | 🟧 orange | same family |
-  | 🟨 yellow | same genus |
+  | 🟥 red | same genus |
   | 🟩 green | the species itself: a lifer! |
 
 - **Unlimited guesses.** Within one color, guesses closer in the AviList taxonomic
@@ -27,7 +27,7 @@ see for the first time; here, the day's mystery bird is your lifer.
   to Lifer. **Copy result** puts it on the clipboard; phones also get the native share sheet.
   ```
   🐦 Lifer #12 · 5 guesses
-  ⬜🟥🟧🟨🟩
+  ⬜🟨🟧🟥🟩
   https://your-lifer-domain
   ```
   The link is `NEXT_PUBLIC_SITE_URL`, or the page's own address if that isn't set.

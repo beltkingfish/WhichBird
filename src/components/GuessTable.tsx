@@ -51,7 +51,7 @@ export function GuessTable({ scored, latestIndex }: Props) {
                 <td className="px-2">
                   <span
                     className={`inline-block whitespace-nowrap rounded-[2px] px-1.5 py-0.5 text-xs ${italic ? "sci" : ""} ${matched ? "font-semibold" : "text-base-content/50"}`}
-                    style={matched ? { background: info.color, color: level === 3 ? "#1a1c1b" : "#fff" } : undefined}
+                    style={matched ? { background: info.color, color: level === 1 ? "#1a1c1b" : "#fff" } : undefined}
                   >
                     {text}
                   </span>

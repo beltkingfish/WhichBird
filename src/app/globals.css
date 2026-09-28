@@ -80,9 +80,9 @@
 /* Match-level scale, shared by the table, tree, key and share grid. */
 :root {
   --lvl-0: #a3a79f; /* different order */
-  --lvl-1: #cf3b2b; /* same order */
+  --lvl-1: #f0c929; /* same order */
   --lvl-2: #e9821c; /* same family */
-  --lvl-3: #f0c929; /* same genus */
+  --lvl-3: #cf3b2b; /* same genus */
   --lvl-4: #2e8540; /* the bird itself */
   --lvl-4-glow: #8fdc9c;
   --off: color-mix(in oklab, var(--color-base-content) 22%, var(--color-base-100));

@@ -79,7 +79,7 @@ describe("searchBirds", () => {
 describe("buildShareText", () => {
   it("renders an emoji row per guess", () => {
     const text = buildShareText({ mode: "daily", puzzleNumber: 12, levels: [0, 1, 2, 3, 4], photoHintUsed: false });
-    expect(text).toBe("🐦 Lifer #12 · 5 guesses\n⬜🟥🟧🟨🟩");
+    expect(text).toBe("🐦 Lifer #12 · 5 guesses\n⬜🟨🟧🟥🟩");
   });
   it("wraps long games and flags the photo hint", () => {
     const text = buildShareText({ mode: "daily", puzzleNumber: 1, levels: [...Array(11).fill(0), 4], photoHintUsed: true });
