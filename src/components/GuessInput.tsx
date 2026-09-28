@@ -42,7 +42,7 @@ export function GuessInput({ birds, guessed, disabled, onGuess }: Props) {
   return (
     <div className="relative">
       <form
-        className="flex gap-2"
+        className="join w-full"
         onSubmit={(e) => {
           e.preventDefault();
           submit(results[active]);
@@ -59,7 +59,7 @@ export function GuessInput({ birds, guessed, disabled, onGuess }: Props) {
           spellCheck={false}
           disabled={disabled}
           value={query}
-          placeholder={disabled ? "Lifer found! 🎉" : "Name a bird… (e.g. Blue Jay)"}
+          placeholder={disabled ? "Solved" : "Type a bird, e.g. Blue Jay"}
           onChange={(e) => {
             setQuery(e.target.value);
             setActive(0);
@@ -80,12 +80,12 @@ export function GuessInput({ birds, guessed, disabled, onGuess }: Props) {
               setOpen(false);
             }
           }}
-          className="min-w-0 flex-1 rounded-lg border border-line bg-card px-3 py-2.5 text-base shadow-sm outline-none focus:border-accent focus:ring-2 focus:ring-accent/30 disabled:opacity-60"
+          className="input input-lg join-item w-full min-w-0 flex-1 border-2 border-base-content text-base focus:outline-none focus-within:outline-none"
         />
         <button
           type="submit"
           disabled={disabled || !query.trim()}
-          className="rounded-lg bg-accent px-4 py-2.5 font-medium text-accent-ink shadow-sm disabled:opacity-50"
+          className="btn btn-primary btn-lg join-item border-2 border-base-content"
         >
           Guess
         </button>
@@ -95,7 +95,7 @@ export function GuessInput({ birds, guessed, disabled, onGuess }: Props) {
         <ul
           id={listId}
           role="listbox"
-          className="absolute z-10 mt-1 max-h-80 w-full overflow-auto rounded-lg border border-line bg-card py-1 shadow-lg"
+          className="menu absolute z-10 mt-1 max-h-80 w-full flex-nowrap overflow-auto rounded-box border-2 border-base-content bg-base-100 p-1"
         >
           {results.map((bird, i) => {
             const already = guessed.has(bird.id);
@@ -111,18 +111,18 @@ export function GuessInput({ birds, guessed, disabled, onGuess }: Props) {
                   submit(bird);
                 }}
                 onMouseEnter={() => setActive(i)}
-                className={`flex cursor-pointer items-baseline justify-between gap-3 px-3 py-1.5 ${
-                  i === active ? "bg-accent/10" : ""
-                } ${already ? "opacity-40" : ""}`}
+                className={already ? "opacity-40" : ""}
               >
-                <span>{bird.common}</span>
-                <span className="sci truncate text-xs text-muted">{bird.scientific}</span>
+                <div className={`flex items-baseline justify-between gap-3 ${i === active ? "menu-active" : ""}`}>
+                  <span>{bird.common}</span>
+                  <span className="sci truncate text-xs opacity-60">{bird.scientific}</span>
+                </div>
               </li>
             );
           })}
         </ul>
       )}
-      {error && <p className="mt-1 text-sm text-[var(--lvl-1)]">{error}</p>}
+      {error && <p className="mt-1 text-sm text-error">{error}</p>}
     </div>
   );
 }

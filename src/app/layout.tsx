@@ -1,54 +1,41 @@
 import type { Metadata } from "next";
-import { Fraunces, Inter } from "next/font/google";
-import Link from "next/link";
-import { AccountButton } from "@/components/AccountButton";
+import { Barlow, Barlow_Condensed, IBM_Plex_Mono } from "next/font/google";
+import { SiteHeader } from "@/components/SiteHeader";
 import "./globals.css";
 
-const display = Fraunces({ subsets: ["latin"], variable: "--font-display-face", weight: ["600", "700"] });
-const body = Inter({ subsets: ["latin"], variable: "--font-body" });
+const barlow = Barlow({ subsets: ["latin"], variable: "--font-barlow", weight: ["400", "500", "600", "700"], style: ["normal", "italic"] });
+const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], variable: "--font-barlow-condensed", weight: ["700", "800"] });
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-plex-mono", weight: ["400", "600"] });
 
 export const metadata: Metadata = {
-  title: "Lifer — the daily bird-guessing game",
-  description: "Find today's mystery bird by climbing the tree of life: Order, Family, Genus, Species.",
+  title: "Lifer · daily bird puzzle",
+  description: "Guess the day's bird. Each guess shows how far up the tree of life it shares with the answer.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${display.variable} ${body.variable}`}>
-      <body className="min-h-screen font-sans antialiased">
-        <header className="border-b border-line">
-          <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
-            <Link href="/" className="font-display text-2xl font-bold tracking-tight text-accent">
-              Lifer
-            </Link>
-            <nav className="flex gap-3 text-sm text-muted">
-              <Link href="/" className="hover:text-ink">
-                Daily
-              </Link>
-              <Link href="/practice" className="hover:text-ink">
-                Practice
-              </Link>
-            </nav>
-            <div className="ml-auto">
-              <AccountButton />
-            </div>
+    <html lang="en" className={`${barlow.variable} ${barlowCondensed.variable} ${plexMono.variable}`}>
+      <body className="min-h-screen bg-base-100 font-sans text-base-content antialiased">
+        <SiteHeader />
+        <main className="mx-auto max-w-6xl px-4 py-5">{children}</main>
+        <footer className="border-t border-base-300 text-xs text-base-content/60">
+          <div className="mx-auto max-w-6xl px-4 py-6">
+            <p>
+              Taxonomy:{" "}
+              <a className="link" href="https://www.avilist.org/" target="_blank" rel="noreferrer">
+                AviList
+              </a>{" "}
+              v2025, CC BY 4.0. Photos:{" "}
+              <a className="link" href="https://www.inaturalist.org/" target="_blank" rel="noreferrer">
+                iNaturalist
+              </a>{" "}
+              and{" "}
+              <a className="link" href="https://commons.wikimedia.org/" target="_blank" rel="noreferrer">
+                Wikimedia Commons
+              </a>{" "}
+              contributors, credited under each photo.
+            </p>
           </div>
-        </header>
-        <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
-        <footer className="mx-auto max-w-6xl px-4 pb-8 pt-4 text-xs text-muted">
-          Taxonomy from{" "}
-          <a className="underline" href="https://www.avilist.org/" target="_blank" rel="noreferrer">
-            AviList
-          </a>{" "}
-          (CC BY 4.0). Photos from{" "}
-          <a className="underline" href="https://www.inaturalist.org/" target="_blank" rel="noreferrer">
-            iNaturalist
-          </a>{" "}
-          and{" "}
-          <a className="underline" href="https://commons.wikimedia.org/" target="_blank" rel="noreferrer">
-            Wikimedia Commons
-          </a>
-          ; each photographer is credited next to their photo.
         </footer>
       </body>
     </html>

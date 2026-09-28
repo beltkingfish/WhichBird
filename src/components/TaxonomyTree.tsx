@@ -10,7 +10,11 @@ import type { Bird } from "@/lib/types";
 // d3-zoom touches the DOM on import; render the tree only in the browser.
 const Tree = dynamic(() => import("react-d3-tree").then((m) => m.Tree), {
   ssr: false,
-  loading: () => <div className="grid h-full place-items-center text-sm text-muted">Growing the tree…</div>,
+  loading: () => (
+    <div className="grid h-full place-items-center">
+      <span className="loading loading-dots loading-md text-base-content/40" />
+    </div>
+  ),
 });
 
 const DEPTH_SPACING = 135;
@@ -65,11 +69,23 @@ function renderNode({ nodeDatum, hierarchyPointNode, toggleNode }: CustomNodeEle
       )}
       {isMystery && (
         <text className="tree-sub" x={16} dy="0.35em" fontSize={11}>
-          {a.rank === "order" ? "which order?" : `another ${a.rank}?`}
+          {a.rank === "order" ? "order unknown" : `${a.rank} unknown`}
         </text>
       )}
     </g>
   );
+}
+
+/**
+ * Right-angle links that fork halfway between ranks (clear of the centred
+ * labels). Siblings share the stub before the fork, so when one sibling is lit
+ * (or the mystery), the others start at the fork and can't paint gray over it.
+ */
+function forkPath({ source, target }: TreeLinkDatum) {
+  const fork = (source.y + target.y) / 2;
+  const status = (n: typeof target) => (n.data.attributes as unknown as Attrs).status;
+  const ownsStub = status(target) !== "off" || !source.children?.some((c) => status(c) !== "off");
+  return `M${ownsStub ? source.y : fork},${source.x}H${fork}V${target.x}H${target.y}`;
 }
 
 function linkClass({ target }: TreeLinkDatum) {
@@ -106,17 +122,17 @@ export function TaxonomyTree({ guesses, target, solved }: Props) {
   const zoom = width ? Math.min(1, width / needed) : 1;
 
   return (
-    <section aria-label="Taxonomy tree" className="min-w-0 self-start rounded-xl border border-line bg-card shadow-sm lg:sticky lg:top-4">
-      <div className="flex items-center justify-between border-b border-line px-3 py-2">
-        <h2 className="text-sm font-semibold">Tree of life</h2>
-        <span className="text-right text-xs text-muted">drag to pan · scroll to zoom · click a node to fold it</span>
+    <section aria-label="Taxonomy tree" className="min-w-0 self-start rounded-box border border-base-300 bg-base-100 lg:sticky lg:top-4">
+      <div className="flex items-center justify-between gap-3 border-b border-base-300 px-3 py-2">
+        <h2 className="text-xs font-semibold uppercase tracking-wide">Tree</h2>
+        <span className="text-right text-xs text-base-content/50">Drag to pan, scroll to zoom, click a node to fold</span>
       </div>
       <div ref={ref} style={{ height }} className="w-full">
         {width > 0 && (
           <Tree
             data={data as unknown as RawNodeDatum}
             orientation="horizontal"
-            pathFunc="step"
+            pathFunc={forkPath}
             translate={{ x: 40 * zoom + 10, y: height / 2 }}
             zoom={zoom}
             scaleExtent={{ min: 0.3, max: 2 }}

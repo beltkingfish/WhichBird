@@ -31,7 +31,7 @@ see for the first time; here, the day's mystery bird is your lifer.
 
 | Layer | Choice |
 | --- | --- |
-| App | Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 |
+| App | Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + [daisyUI 5](https://daisyui.com) (custom `lifer` / `lifer-dusk` themes in `src/app/globals.css`) |
 | Tree | [react-d3-tree](https://github.com/bkrem/react-d3-tree), horizontal layout (see [Tree visualization](#tree-visualization)) |
 | Data | Supabase Postgres (optional: the app falls back to bundled `data/birds.json`) |
 | Taxonomy | [AviList](https://www.avilist.org/) global checklist, CC BY 4.0 |

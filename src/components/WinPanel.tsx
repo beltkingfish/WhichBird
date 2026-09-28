@@ -5,6 +5,7 @@ import { buildShareText } from "@/lib/share";
 import type { Stats } from "@/lib/storage";
 import type { MatchLevel } from "@/lib/taxonomy";
 import type { Bird } from "@/lib/types";
+import { StatsBody } from "./SiteHeader";
 
 interface Props {
   mode: "daily" | "practice";
@@ -16,7 +17,8 @@ interface Props {
   onNext?: () => void;
 }
 
-function useCountdown(): string {
+/** Seconds until the player's local midnight, ticking. */
+function useSecondsToMidnight(): number {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -24,17 +26,30 @@ function useCountdown(): string {
   }, []);
   const midnight = new Date(now);
   midnight.setHours(24, 0, 0, 0);
-  const s = Math.max(0, Math.floor((midnight.getTime() - now) / 1000));
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
+  return Math.max(0, Math.floor((midnight.getTime() - now) / 1000));
 }
 
-const cheer = (n: number) =>
-  n === 1 ? "First guess! Were you out at dawn?" : n <= 4 ? "Sharp eyes." : n <= 9 ? "Nice work in the field." : "Persistence pays: every birder knows that.";
+function Countdown() {
+  const s = useSecondsToMidnight();
+  const parts = [Math.floor(s / 3600), Math.floor((s % 3600) / 60), s % 60];
+  return (
+    <span className="flex font-mono text-2xl" role="timer" aria-label={`${parts[0]} hours ${parts[1]} minutes`}>
+      {parts.map((v, i) => (
+        <span key={i} className="flex">
+          {i > 0 && ":"}
+          <span className="countdown">
+            <span style={{ "--value": v, "--digits": 2 } as React.CSSProperties} aria-hidden>
+              {String(v).padStart(2, "0")}
+            </span>
+          </span>
+        </span>
+      ))}
+    </span>
+  );
+}
 
 export function WinPanel({ mode, target, puzzleNumber, levels, photoHintUsed, stats, onNext }: Props) {
   const [copied, setCopied] = useState(false);
-  const countdown = useCountdown();
   const text = buildShareText({
     mode,
     puzzleNumber,
@@ -57,68 +72,62 @@ export function WinPanel({ mode, target, puzzleNumber, levels, photoHintUsed, st
     }
   }
 
-  const avg =
-    stats && stats.wins
-      ? (
-          Object.entries(stats.histogram).reduce((sum, [k, v]) => sum + (k === "10+" ? 10 : Number(k)) * v, 0) / stats.wins
-        ).toFixed(1)
-      : null;
+  const n = levels.length;
 
   return (
-    <section
-      aria-live="polite"
-      className="rounded-xl border-2 p-4 shadow-sm"
-      style={{ borderColor: "var(--lvl-4)", background: "color-mix(in srgb, var(--lvl-4-glow) 14%, var(--card))" }}
-    >
-      <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--lvl-4)" }}>
-        New lifer!
-      </p>
-      <h2 className="font-display text-2xl font-bold">{target.common}</h2>
-      <p className="text-sm text-muted">
-        <span className="sci">{target.scientific}</span> · {target.order} › {target.family}
-        {target.familyEnglish ? ` (${target.familyEnglish})` : ""}
-      </p>
-      <p className="mt-2 text-sm">
-        Found in {levels.length} {levels.length === 1 ? "guess" : "guesses"}. {cheer(levels.length)}
-      </p>
+    <section aria-live="polite" className="card border-2 border-base-content bg-base-100">
+      <div className="card-body gap-3 p-4">
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+              Lifer · {n} {n === 1 ? "guess" : "guesses"}
+            </p>
+            <h2 className="display text-3xl uppercase">{target.common}</h2>
+          </div>
+          <span className="inline-block h-8 w-8 shrink-0 rounded-[2px]" style={{ background: "var(--lvl-4)" }} aria-hidden />
+        </div>
 
-      <pre className="mt-3 whitespace-pre-wrap rounded-lg bg-card p-3 font-sans text-sm">{text}</pre>
-      <div className="mt-3 flex flex-wrap gap-2">
-        <button onClick={share} className="rounded-lg bg-accent px-4 py-2 font-medium text-accent-ink">
-          {copied ? "Copied!" : "Share result"}
-        </button>
-        {mode === "practice" && onNext && (
-          <button onClick={onNext} className="rounded-lg border border-line bg-card px-4 py-2 font-medium">
-            Find another bird
+        <div className="breadcrumbs py-0 text-xs text-base-content/70">
+          <ul>
+            <li>{target.order}</li>
+            <li>
+              {target.family}
+              {target.familyEnglish ? ` (${target.familyEnglish})` : ""}
+            </li>
+            <li className="sci">{target.scientific}</li>
+          </ul>
+        </div>
+
+        <pre className="rounded-box bg-base-200 p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap">{text}</pre>
+
+        <div className="card-actions">
+          <button onClick={share} className="btn btn-primary">
+            Share
           </button>
+          {mode === "practice" && onNext && (
+            <button onClick={onNext} className="btn btn-outline">
+              Next bird
+            </button>
+          )}
+        </div>
+
+        {mode === "daily" && (
+          <>
+            <div className="divider my-0" />
+            <div className="flex items-end justify-between gap-3">
+              <span className="text-xs uppercase tracking-wide text-base-content/60">Next bird in</span>
+              <Countdown />
+            </div>
+            {stats && <StatsBody stats={stats} histogram={false} />}
+          </>
         )}
       </div>
 
-      {mode === "daily" && (
-        <div className="mt-4 flex flex-wrap items-end gap-x-6 gap-y-2 text-sm">
-          {stats && (
-            <>
-              <Stat label="Lifers" value={stats.wins} />
-              <Stat label="Streak" value={stats.currentStreak} />
-              <Stat label="Best streak" value={stats.maxStreak} />
-              {avg && <Stat label="Avg guesses" value={avg} />}
-            </>
-          )}
-          <div className="ml-auto text-right">
-            <div className="text-xs text-muted">Next bird in</div>
-            <div className="font-mono text-lg tabular-nums">{countdown}</div>
-          </div>
+      {copied && (
+        <div className="toast toast-center toast-bottom z-50">
+          <div className="alert alert-success py-2 text-sm">Copied to clipboard</div>
         </div>
       )}
     </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string | number }) {
-  return (
-    <div>
-      <div className="text-xl font-bold tabular-nums">{value}</div>
-      <div className="text-xs text-muted">{label}</div>
-    </div>
   );
 }

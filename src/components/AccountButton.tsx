@@ -7,7 +7,6 @@ import { browserSupabase } from "@/lib/supabase-browser";
 export function AccountButton() {
   const db = browserSupabase();
   const [email, setEmail] = useState<string | null>(null);
-  const [open, setOpen] = useState(false);
   const [input, setInput] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
 
@@ -22,53 +21,56 @@ export function AccountButton() {
 
   if (email) {
     return (
-      <div className="flex items-center gap-2 text-xs text-muted">
-        <span className="hidden sm:inline">{email}</span>
-        <button className="underline hover:text-ink" onClick={() => db.auth.signOut()}>
-          Sign out
+      <div className="dropdown dropdown-end">
+        <button tabIndex={0} className="btn btn-ghost btn-sm">
+          {email.split("@")[0]}
         </button>
+        <ul tabIndex={0} className="menu dropdown-content z-20 mt-2 w-52 rounded-box border border-base-300 bg-base-100 p-1">
+          <li className="menu-title truncate">{email}</li>
+          <li>
+            <button onClick={() => db.auth.signOut()}>Sign out</button>
+          </li>
+        </ul>
       </div>
     );
   }
 
   return (
-    <div className="relative">
-      <button className="text-sm text-muted hover:text-ink" onClick={() => setOpen((o) => !o)}>
+    <div className="dropdown dropdown-end">
+      <button tabIndex={0} className="btn btn-outline btn-sm">
         Sign in
       </button>
-      {open && (
-        <form
-          className="absolute right-0 z-20 mt-2 w-72 rounded-lg border border-line bg-card p-3 shadow-lg"
-          onSubmit={async (e) => {
-            e.preventDefault();
-            setStatus("sending");
-            const { error } = await db.auth.signInWithOtp({
-              email: input,
-              options: { emailRedirectTo: window.location.href },
-            });
-            setStatus(error ? "error" : "sent");
-          }}
-        >
-          <p className="mb-2 text-xs text-muted">Keep your life list in sync across devices. We&apos;ll email you a sign-in link.</p>
+      <form
+        tabIndex={0}
+        className="dropdown-content z-20 mt-2 w-72 rounded-box border border-base-300 bg-base-100 p-3"
+        onSubmit={async (e) => {
+          e.preventDefault();
+          setStatus("sending");
+          const { error } = await db.auth.signInWithOtp({
+            email: input,
+            options: { emailRedirectTo: window.location.href },
+          });
+          setStatus(error ? "error" : "sent");
+        }}
+      >
+        <fieldset className="fieldset">
+          <legend className="fieldset-legend">Sync your results</legend>
           <input
             type="email"
             required
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="you@example.com"
-            className="w-full rounded border border-line bg-paper px-2 py-1 text-sm"
+            className="input input-sm w-full"
           />
-          <button
-            type="submit"
-            disabled={status === "sending"}
-            className="mt-2 w-full rounded bg-accent px-2 py-1 text-sm font-medium text-accent-ink disabled:opacity-60"
-          >
-            {status === "sending" ? "Sending…" : "Email me a link"}
+          <p className="label">We&apos;ll email you a sign-in link.</p>
+          <button type="submit" disabled={status === "sending"} className="btn btn-primary btn-sm mt-1">
+            {status === "sending" ? <span className="loading loading-spinner loading-xs" /> : "Send link"}
           </button>
-          {status === "sent" && <p className="mt-2 text-xs text-muted">Check your inbox.</p>}
-          {status === "error" && <p className="mt-2 text-xs text-red-600">Couldn&apos;t send the link. Try again.</p>}
-        </form>
-      )}
+          {status === "sent" && <p className="text-success">Link sent. Check your inbox.</p>}
+          {status === "error" && <p className="text-error">That didn&apos;t work. Try again.</p>}
+        </fieldset>
+      </form>
     </div>
   );
 }

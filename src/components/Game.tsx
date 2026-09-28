@@ -129,39 +129,29 @@ export function Game({ mode, birds, pinned }: Props) {
   }, [photoPref, round, persist]);
 
   if (!round) {
-    return <div className="py-24 text-center text-muted">Scanning the treetops…</div>;
+    return (
+      <div className="grid place-items-center py-24">
+        <span className="loading loading-dots loading-lg text-base-content/40" />
+      </div>
+    );
   }
 
   const best = bestLevel(scored);
   const levels: MatchLevel[] = scored.map((s) => s.level);
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-b border-base-300 pb-4">
         <div>
-          <h1 className="font-display text-3xl font-bold">
-            {mode === "daily" ? `Today's mystery bird` : "Practice"}
-            {mode === "daily" && <span className="ml-2 align-middle text-base font-normal text-muted">#{round.number}</span>}
-          </h1>
-          <p className="text-sm text-muted">
-            {mode === "daily"
-              ? "One bird a day, the same for everyone. Guess any species; the tree shows how close you are."
-              : "A random bird, as many rounds as you like. Doesn't touch your daily streak."}
+          <p className="font-mono text-xs uppercase tracking-wide text-base-content/60">
+            {mode === "daily" ? `No. ${round.number} · ${formatDate(round.dateKey)}` : "Practice · random bird"}
           </p>
+          <h1 className="display text-4xl uppercase sm:text-5xl">{mode === "daily" ? "Today's bird" : "Practice"}</h1>
         </div>
-        <details className="text-sm text-muted">
-          <summary className="cursor-pointer select-none hover:text-ink">How to play</summary>
-          <div className="mt-2 max-w-sm space-y-1 rounded-lg border border-line bg-card p-3 text-ink">
-            <p>Name any bird. We compare its lineage with the mystery bird&apos;s: Order › Family › Genus › Species.</p>
-            <p>The deeper the match, the warmer the color. Close the gap until you land on the species itself, your lifer.</p>
-            <p>Guesses are unlimited. Within a color, closer guesses sort higher.</p>
-          </div>
-        </details>
+        <Legend />
       </div>
 
-      <Legend />
-
-      <div className="grid grid-cols-[minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <div className="min-w-0 space-y-4">
           {round.won ? (
             <WinPanel
@@ -174,10 +164,10 @@ export function Game({ mode, birds, pinned }: Props) {
               onNext={newPracticeBird}
             />
           ) : (
-            <>
+            <div className="space-y-2">
               <GuessInput birds={birds} guessed={guessedSet} onGuess={onGuess} />
-              <StatusLine best={best} count={scored.length} target={round.target} guesses={guesses} />
-            </>
+              <KnownLineage best={best} count={scored.length} target={round.target} guesses={guesses} />
+            </div>
           )}
           <GuessTable scored={scored} latestIndex={scored.length} />
           <PhotoHint
@@ -204,31 +194,38 @@ export function Game({ mode, birds, pinned }: Props) {
   );
 }
 
+function formatDate(dateKey: string): string {
+  const [y, m, d] = dateKey.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
 function GiveUp({ target, onNext }: { target: Bird; onNext: () => void }) {
   const [revealed, setRevealed] = useState(false);
   if (!revealed) {
     return (
-      <button onClick={() => setRevealed(true)} className="text-sm text-muted underline hover:text-ink">
-        Give up and reveal the bird
+      <button onClick={() => setRevealed(true)} className="btn btn-ghost btn-sm">
+        Give up
       </button>
     );
   }
   return (
-    <p className="text-sm">
-      It was the <span className="font-semibold">{target.common}</span> (<span className="sci">{target.scientific}</span>).{" "}
-      <button onClick={onNext} className="underline hover:text-ink">
-        Try another bird
+    <div role="alert" className="alert">
+      <span>
+        It was the <span className="font-semibold">{target.common}</span> (<span className="sci">{target.scientific}</span>).
+      </span>
+      <button onClick={onNext} className="btn btn-sm btn-primary">
+        Next bird
       </button>
-    </p>
+    </div>
   );
 }
 
 function Legend() {
   return (
-    <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted" aria-label="Color key">
+    <ul className="flex flex-wrap gap-x-3 gap-y-1 text-xs" aria-label="Color key">
       {([0, 1, 2, 3, 4] as MatchLevel[]).map((l) => (
         <li key={l} className="flex items-center gap-1.5">
-          <span className="inline-block h-3 w-3 rounded-sm" style={{ background: LEVELS[l].color }} />
+          <span className="inline-block h-3 w-3 rounded-[2px]" style={{ background: LEVELS[l].color }} />
           {LEVELS[l].label}
         </li>
       ))}
@@ -236,23 +233,30 @@ function Legend() {
   );
 }
 
-function StatusLine({ best, count, target, guesses }: { best: MatchLevel; count: number; target: Bird; guesses: Bird[] }) {
-  if (count === 0) return <p className="text-sm text-muted">Where to start? Try a bird from your backyard.</p>;
-  const known = [
-    best >= 1 && target.order,
-    best >= 2 && `${target.family}${target.familyEnglish ? ` (${target.familyEnglish})` : ""}`,
-    best >= 3 && target.genus,
-  ].filter(Boolean);
+/** Breadcrumb of the target's lineage as far as the player has uncovered it. */
+function KnownLineage({ best, count, target, guesses }: { best: MatchLevel; count: number; target: Bird; guesses: Bird[] }) {
+  if (count === 0) return <p className="text-sm text-base-content/60">No guesses yet. Any bird will do to start.</p>;
+  const known = [best >= 1 && target.order, best >= 2 && target.family, best >= 3 && target.genus].filter(Boolean) as string[];
   const last = guesses[guesses.length - 1];
   return (
-    <p className="text-sm">
-      {known.length ? (
-        <>
-          Known lineage: <span className="font-medium">Aves › {known.join(" › ")} › ?</span>
-        </>
-      ) : (
-        <>No shared order yet. {last?.common} is in {last?.order}; the mystery bird isn&apos;t.</>
+    <div className="flex flex-wrap items-center gap-x-2 text-sm">
+      <span className="text-xs uppercase tracking-wide text-base-content/60">Known</span>
+      <div className="breadcrumbs py-0">
+        <ul>
+          <li>Aves</li>
+          {known.map((k, i) => (
+            <li key={k} className={i === 2 ? "sci font-semibold" : "font-semibold"}>
+              {k}
+            </li>
+          ))}
+          <li className="text-base-content/50">?</li>
+        </ul>
+      </div>
+      {!known.length && last && (
+        <span className="text-base-content/60">
+          (not in {last.order})
+        </span>
       )}
-    </p>
+    </div>
   );
 }

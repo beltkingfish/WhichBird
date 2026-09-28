@@ -1,58 +1,114 @@
 @import "tailwindcss";
-
-/* Field-guide palette. Match levels share one scale across table, tree, legend and share grid. */
-:root {
-  --paper: #f6f1e6;
-  --card: #fffdf7;
-  --ink: #1f2a24;
-  --muted: #5f6b63;
-  --line: #ddd4c2;
-  --accent: #2f5d46;
-  --accent-ink: #ffffff;
-
-  --lvl-0: #9aa5a0; /* different order */
-  --lvl-1: #d9412b; /* same order */
-  --lvl-2: #ec8a1f; /* same family */
-  --lvl-3: #f2cf2e; /* same genus */
-  --lvl-4: #c9971a; /* the bird itself: gold */
-  --lvl-4-glow: #ffd766;
-  --off: #b9b2a3;
+@plugin "daisyui" {
+  themes: false;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #121714;
-    --card: #1a211d;
-    --ink: #ebe6d9;
-    --muted: #9ba59f;
-    --line: #2f3833;
-    --accent: #7cc19b;
-    --accent-ink: #0f1a14;
-    --lvl-0: #66716b;
-    --off: #4b544f;
-  }
+/* Flat field-guide look: paper-white, near-black ink, one deep teal accent, tight corners. */
+@plugin "daisyui/theme" {
+  name: "lifer";
+  default: true;
+  color-scheme: light;
+  --color-base-100: #fbfaf6;
+  --color-base-200: #f2f0e9;
+  --color-base-300: #e1ddd2;
+  --color-base-content: #1a1c1b;
+  --color-primary: #14504f;
+  --color-primary-content: #f4f7f5;
+  --color-secondary: #3d3a33;
+  --color-secondary-content: #fbfaf6;
+  --color-accent: #c98b12;
+  --color-accent-content: #1a1c1b;
+  --color-neutral: #1a1c1b;
+  --color-neutral-content: #f2f0e9;
+  --color-info: #2a6f97;
+  --color-info-content: #ffffff;
+  --color-success: #2e7d4f;
+  --color-success-content: #ffffff;
+  --color-warning: #d98e04;
+  --color-warning-content: #1a1c1b;
+  --color-error: #c2372a;
+  --color-error-content: #ffffff;
+  --radius-selector: 0.125rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.375rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+  name: "lifer-dusk";
+  prefersdark: true;
+  color-scheme: dark;
+  --color-base-100: #141716;
+  --color-base-200: #1b1f1d;
+  --color-base-300: #2b302d;
+  --color-base-content: #e8e6df;
+  --color-primary: #6cc3b6;
+  --color-primary-content: #0d1a19;
+  --color-secondary: #cfcabd;
+  --color-secondary-content: #141716;
+  --color-accent: #e3a92c;
+  --color-accent-content: #141716;
+  --color-neutral: #e8e6df;
+  --color-neutral-content: #141716;
+  --color-info: #6fb3dc;
+  --color-info-content: #0c1a22;
+  --color-success: #6cc28c;
+  --color-success-content: #0d1a12;
+  --color-warning: #eaa82a;
+  --color-warning-content: #141716;
+  --color-error: #ec6b5d;
+  --color-error-content: #141716;
+  --radius-selector: 0.125rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.375rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 0;
+  --noise: 0;
 }
 
 @theme inline {
-  --color-paper: var(--paper);
-  --color-card: var(--card);
-  --color-ink: var(--ink);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-accent: var(--accent);
-  --color-accent-ink: var(--accent-ink);
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-display-face), Georgia, serif;
+  --font-sans: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
 }
 
-html,
-body {
-  background: var(--paper);
-  color: var(--ink);
+/* Match-level scale, shared by the table, tree, key and share grid. */
+:root {
+  --lvl-0: #a3a79f; /* different order */
+  --lvl-1: #cf3b2b; /* same order */
+  --lvl-2: #e9821c; /* same family */
+  --lvl-3: #f0c929; /* same genus */
+  --lvl-4: #b8860b; /* the bird itself */
+  --lvl-4-glow: #ffd34d;
+  --off: color-mix(in oklab, var(--color-base-content) 22%, var(--color-base-100));
+  --ink: var(--color-base-content);
+  --muted: color-mix(in oklab, var(--color-base-content) 60%, var(--color-base-100));
+  --card: var(--color-base-100);
+}
+[data-theme="lifer-dusk"] {
+  --lvl-0: #5d625d;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="lifer"]) {
+    --lvl-0: #5d625d;
+  }
 }
 
 .sci {
   font-style: italic;
+}
+
+/* Condensed display face for the wordmark and headings. */
+.display {
+  font-family: var(--font-barlow-condensed), var(--font-barlow), sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
 }
 
 /* ---------- taxonomy tree (react-d3-tree) ----------
@@ -65,13 +121,13 @@ path.tree-link {
 }
 path.tree-link--lit {
   stroke-width: 3.5;
-  stroke-linecap: round;
+  stroke-linecap: square;
   animation: branch-grow 700ms ease-out both;
 }
 path.tree-link--d1 { stroke: var(--lvl-1); }
 path.tree-link--d2 { stroke: var(--lvl-2); }
 path.tree-link--d3 { stroke: var(--lvl-3); }
-path.tree-link--d4 { stroke: var(--lvl-4); filter: drop-shadow(0 0 4px var(--lvl-4-glow)); }
+path.tree-link--d4 { stroke: var(--lvl-4); }
 path.tree-link--mystery {
   stroke: var(--muted);
   stroke-dasharray: 4 4;
@@ -92,7 +148,7 @@ path.tree-link--mystery {
 .tree-node text {
   fill: var(--ink);
   stroke: none;
-  font-family: var(--font-body), system-ui, sans-serif;
+  font-family: var(--font-barlow), system-ui, sans-serif;
 }
 .tree-node .tree-sub {
   fill: var(--muted);
