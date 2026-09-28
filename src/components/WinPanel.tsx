@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { copyText } from "@/lib/clipboard";
 import { buildShareText } from "@/lib/share";
 import type { Stats } from "@/lib/storage";
 import type { MatchLevel } from "@/lib/taxonomy";
@@ -58,17 +59,22 @@ export function WinPanel({ mode, target, puzzleNumber, levels, photoHintUsed, st
     url: process.env.NEXT_PUBLIC_SITE_URL || (typeof window !== "undefined" ? window.location.origin : undefined),
   });
 
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => setCanShare(typeof navigator.share === "function"), []);
+  const [copyFailed, setCopyFailed] = useState(false);
+
+  async function copy() {
+    const ok = await copyText(text);
+    setCopied(ok);
+    setCopyFailed(!ok);
+    if (ok) setTimeout(() => setCopied(false), 2000);
+  }
+
   async function share() {
     try {
-      if (navigator.share && /Mobi|Android/i.test(navigator.userAgent)) {
-        await navigator.share({ text });
-        return;
-      }
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      await navigator.share({ text });
     } catch {
-      /* user cancelled the share sheet */
+      /* user closed the share sheet */
     }
   }
 
@@ -79,7 +85,7 @@ export function WinPanel({ mode, target, puzzleNumber, levels, photoHintUsed, st
       <div className="card-body gap-3 p-4">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-widest text-accent">
+            <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--lvl-4)" }}>
               Lifer · {n} {n === 1 ? "guess" : "guesses"}
             </p>
             <h2 className="display text-3xl uppercase">{target.common}</h2>
@@ -98,12 +104,23 @@ export function WinPanel({ mode, target, puzzleNumber, levels, photoHintUsed, st
           </ul>
         </div>
 
-        <pre className="rounded-box bg-base-200 p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap">{text}</pre>
+        <pre
+          aria-label="Your result"
+          className="select-all rounded-box bg-base-200 p-3 font-mono text-sm leading-relaxed whitespace-pre-wrap"
+        >
+          {text}
+        </pre>
+        {copyFailed && <p className="text-xs text-error">Couldn&apos;t reach the clipboard. Select the text above and copy it.</p>}
 
         <div className="card-actions">
-          <button onClick={share} className="btn btn-primary">
-            Share
+          <button onClick={copy} className="btn btn-primary">
+            {copied ? "Copied" : "Copy result"}
           </button>
+          {canShare && (
+            <button onClick={share} className="btn btn-outline">
+              Share…
+            </button>
+          )}
           {mode === "practice" && onNext && (
             <button onClick={onNext} className="btn btn-outline">
               Next bird

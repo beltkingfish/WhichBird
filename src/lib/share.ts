@@ -8,9 +8,13 @@ export interface ShareInput {
   url?: string;
 }
 
-/** Wordle-style summary in guess order, wrapped at 10 per row. */
+/**
+ * Wordle-style result to paste anywhere: one square per guess, in guess order,
+ * wrapped at 10 per row, then a link back to the game.
+ *   ⬜ different order · 🟥 same order · 🟧 same family · 🟨 same genus · 🟩 found it
+ */
 export function buildShareText({ mode, puzzleNumber, levels, photoHintUsed, url }: ShareInput): string {
-  const title = mode === "daily" ? `Lifer #${puzzleNumber}` : "Lifer (practice)";
+  const title = mode === "daily" ? `🐦 Lifer #${puzzleNumber}` : "🐦 Lifer (practice)";
   const n = levels.length;
   const headline = `${title} · ${n} ${n === 1 ? "guess" : "guesses"}${photoHintUsed ? " 📷" : ""}`;
   const rows: string[] = [];

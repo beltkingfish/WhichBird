@@ -83,8 +83,8 @@
   --lvl-1: #cf3b2b; /* same order */
   --lvl-2: #e9821c; /* same family */
   --lvl-3: #f0c929; /* same genus */
-  --lvl-4: #b8860b; /* the bird itself */
-  --lvl-4-glow: #ffd34d;
+  --lvl-4: #2e8540; /* the bird itself */
+  --lvl-4-glow: #8fdc9c;
   --off: color-mix(in oklab, var(--color-base-content) 22%, var(--color-base-100));
   --ink: var(--color-base-content);
   --muted: color-mix(in oklab, var(--color-base-content) 60%, var(--color-base-100));

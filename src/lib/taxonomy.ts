@@ -21,7 +21,7 @@ export const LEVELS: Record<MatchLevel, LevelInfo> = {
   1: { level: 1, label: "Same order", rank: "order", emoji: "🟥", color: "var(--lvl-1)" },
   2: { level: 2, label: "Same family", rank: "family", emoji: "🟧", color: "var(--lvl-2)" },
   3: { level: 3, label: "Same genus", rank: "genus", emoji: "🟨", color: "var(--lvl-3)" },
-  4: { level: 4, label: "Found it", rank: "species", emoji: "🐦", color: "var(--lvl-4)" },
+  4: { level: 4, label: "Found it", rank: "species", emoji: "🟩", color: "var(--lvl-4)" },
 };
 
 export function lineage(bird: Bird): Record<Rank, string> {

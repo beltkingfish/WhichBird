@@ -14,7 +14,7 @@ see for the first time; here, the day's mystery bird is your lifer.
   | 🟥 red | same order |
   | 🟧 orange | same family |
   | 🟨 yellow | same genus |
-  | 🐦 gold | the species itself: a lifer! |
+  | 🟩 green | the species itself: a lifer! |
 
 - **Unlimited guesses.** Within one color, guesses closer in the AviList taxonomic
   sequence sort higher, so there's still a hot/cold signal.
@@ -23,7 +23,15 @@ see for the first time; here, the day's mystery bird is your lifer.
   known point of the target's lineage.
 - **Photo hint (optional).** A blurred, desaturated photo of the target sharpens with each
   wrong guess. Using it adds 📷 to your share text.
-- **Share grid** in Wordle style on a win, plus streaks and average guesses.
+- **Copy-and-paste result** on a win, Wordle-style: one square per guess plus a link back
+  to Lifer. **Copy result** puts it on the clipboard; phones also get the native share sheet.
+  ```
+  🐦 Lifer #12 · 5 guesses
+  ⬜🟥🟧🟨🟩
+  https://your-lifer-domain
+  ```
+  The link is `NEXT_PUBLIC_SITE_URL`, or the page's own address if that isn't set.
+  Streaks and average guesses are tracked too.
 - **Practice mode** at `/practice`: random birds, unlimited rounds, no effect on your streak.
 - **Optional accounts**: a Supabase magic-link sign-in saves results to `player_results`.
 
