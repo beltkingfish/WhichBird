@@ -35,5 +35,5 @@ export async function syncResult(r: {
     guess_count: r.levels.length,
     guess_levels: r.levels,
   });
-  if (error) console.warn("[lifer] could not save result:", error.message);
+  if (error) console.warn("[whichbird] could not save result:", error.message);
 }

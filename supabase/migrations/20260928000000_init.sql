@@ -1,4 +1,4 @@
--- Lifer schema: taxonomy, birds, photo attribution, daily puzzles, player results.
+-- WhichBird schema: taxonomy, birds, photo attribution, daily puzzles, player results.
 --
 -- The hierarchy is stored as an adjacency list (`taxa`) so it can grow from the
 -- ~280-species North American pool to the full ~11,000-species AviList without

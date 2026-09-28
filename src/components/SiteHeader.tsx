@@ -18,7 +18,7 @@ export function SiteHeader() {
       <div className="navbar mx-auto max-w-6xl gap-2 px-4">
         <div className="flex flex-1 items-center gap-4">
           <Link href="/" className="display text-3xl uppercase">
-            Lifer
+            WhichBird
           </Link>
           <div role="tablist" className="tabs tabs-border tabs-sm">
             <Link href="/" role="tab" className={`tab ${path === "/" ? "tab-active" : ""}`}>
@@ -73,7 +73,7 @@ export function SiteHeader() {
             ))}
           </ul>
           <p className="mt-4 text-xs text-base-content/60">
-            &ldquo;Lifer&rdquo; is birder slang for a species you&apos;ve never seen before.
+            Find it and it&apos;s a new <em>lifer</em>: birder slang for a species you&apos;ve never seen before.
           </p>
           <div className="modal-action">
             <form method="dialog">

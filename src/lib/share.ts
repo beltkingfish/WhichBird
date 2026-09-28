@@ -14,7 +14,7 @@ export interface ShareInput {
  *   ⬜ different order · 🟨 same order · 🟧 same family · 🟥 same genus · 🟩 found it
  */
 export function buildShareText({ mode, puzzleNumber, levels, photoHintUsed, url }: ShareInput): string {
-  const title = mode === "daily" ? `🐦 Lifer #${puzzleNumber}` : "🐦 Lifer (practice)";
+  const title = mode === "daily" ? `🐦 WhichBird #${puzzleNumber}` : "🐦 WhichBird (practice)";
   const n = levels.length;
   const headline = `${title} · ${n} ${n === 1 ? "guess" : "guesses"}${photoHintUsed ? " 📷" : ""}`;
   const rows: string[] = [];

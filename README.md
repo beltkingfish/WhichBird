@@ -1,8 +1,8 @@
-# Lifer 🐦
+# WhichBird 🐦
 
-A daily bird-guessing game played on the tree of life. It borrows Metazooa's taxonomy
-guessing and Globle's warmer/colder colors. *Lifer* is birders' slang for a species you
-see for the first time; here, the day's mystery bird is your lifer.
+**[whichbird.app](https://whichbird.app)**: a daily bird-guessing game played on the tree
+of life. It borrows Metazooa's taxonomy guessing and Globle's warmer/colder colors. Finding
+the bird earns you a *lifer*, birders' slang for a species you see for the first time.
 
 - **One bird a day**, the same for everyone. It is picked deterministically from the date.
 - **Guess any species.** Each guess is compared with the target's lineage:
@@ -24,11 +24,11 @@ see for the first time; here, the day's mystery bird is your lifer.
 - **Photo hint (optional).** A blurred, desaturated photo of the target sharpens with each
   wrong guess. Using it adds 📷 to your share text.
 - **Copy-and-paste result** on a win, Wordle-style: one square per guess plus a link back
-  to Lifer. **Copy result** puts it on the clipboard; phones also get the native share sheet.
+  to WhichBird. **Copy result** puts it on the clipboard; phones also get the native share sheet.
   ```
-  🐦 Lifer #12 · 5 guesses
+  🐦 WhichBird #12 · 5 guesses
   ⬜🟨🟧🟥🟩
-  https://your-lifer-domain
+  https://whichbird.app
   ```
   The link is `NEXT_PUBLIC_SITE_URL`, or the page's own address if that isn't set.
   Streaks and average guesses are tracked too.
@@ -39,12 +39,12 @@ see for the first time; here, the day's mystery bird is your lifer.
 
 | Layer | Choice |
 | --- | --- |
-| App | Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + [daisyUI 5](https://daisyui.com) (custom `lifer` / `lifer-dusk` themes in `src/app/globals.css`) |
+| App | Next.js 16 (App Router) + TypeScript + Tailwind CSS v4 + [daisyUI 5](https://daisyui.com) (custom `whichbird` / `whichbird-dusk` themes in `src/app/globals.css`) |
 | Tree | [react-d3-tree](https://github.com/bkrem/react-d3-tree), horizontal layout (see [Tree visualization](#tree-visualization)) |
 | Data | Supabase Postgres (optional: the app falls back to bundled `data/birds.json`) |
 | Taxonomy | [AviList](https://www.avilist.org/) global checklist, CC BY 4.0 |
 | Photos | iNaturalist API (CC0 / CC BY only), Wikimedia Commons fallback |
-| Hosting | Railway (`railway.json`) |
+| Hosting | Railway (`railway.json`), domain `whichbird.app` on Cloudflare |
 
 ## Project layout
 
@@ -89,8 +89,9 @@ npm run typecheck
    - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (Project Settings → API)
    - `SUPABASE_SERVICE_ROLE_KEY`: used **only** by the seed script. Never deploy it to the app.
    - `SEED_CONTACT`: an email or URL for the User-Agent sent to iNaturalist and Wikimedia.
-4. Optional, for accounts: under Authentication → URL Configuration, add your local and
-   Railway URLs to the redirect allow-list so magic links land back in the game.
+4. Optional, for accounts: under Authentication → URL Configuration, set the Site URL to
+   `https://whichbird.app` and add it, plus `http://localhost:3000`, to the redirect
+   allow-list so magic links land back in the game.
 
 ### Schema
 
@@ -170,19 +171,39 @@ you need them stable.
 
 1. Push this repo to GitHub.
 2. In Railway: **New Project → Deploy from GitHub repo** and pick the repo.
-   `railway.json` sets the build (`npm ci && npm run build`), the start command
+   `railway.json` sets the build (`npm run build`), the start command
    (`npm run start`, which binds Railway's `$PORT`) and a health check on `/api/health`.
 3. Under **Variables**, add:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `NEXT_PUBLIC_SITE_URL`: your Railway domain, used in share text
+   - `NEXT_PUBLIC_SITE_URL=https://whichbird.app`: the link in copied results
 
    `NEXT_PUBLIC_*` values are baked in at build time, so redeploy after changing them.
    Don't add the service-role key: seeding runs from your machine.
-4. **Settings → Networking → Generate Domain.**
+4. Point the domain at it (next section).
 
 Pages are statically rendered and revalidated hourly, so newly seeded birds appear
 within the hour, or immediately after a redeploy.
+
+### Custom domain: whichbird.app on Cloudflare
+
+1. In Railway, open the service → **Settings → Networking → Custom Domain** and enter
+   `whichbird.app`. Railway shows the DNS record(s) to create: a CNAME target ending in
+   `.up.railway.app`, and sometimes a TXT record for verification.
+2. In Cloudflare, open `whichbird.app` → **DNS → Records** and add:
+   - **CNAME**, name `@`, target = the value Railway showed. Cloudflare allows a CNAME at
+     the root (it "flattens" it).
+   - The **TXT** record too, if Railway asked for one.
+3. Proxy setting: either leave the CNAME as **DNS only** (gray cloud) so Railway serves its
+   own certificate, or keep it **Proxied** (orange cloud) and set **SSL/TLS → Overview**
+   to **Full**. *Flexible* causes an endless redirect loop.
+4. Wait for Railway to show the domain as verified, with a certificate issued. `.app`
+   domains are HTTPS-only in every browser (the whole TLD is HSTS-preloaded), so the site
+   won't load at all until the certificate exists; that's expected.
+5. Optional `www`: add `www.whichbird.app` in Railway as well, with a matching CNAME named
+   `www`, or add a Cloudflare redirect rule from `www` to the bare domain.
+6. Make sure `NEXT_PUBLIC_SITE_URL=https://whichbird.app` is set, redeploy, and update the
+   Supabase auth URLs (see [Setting up Supabase](#setting-up-supabase)).
 
 ## Tree visualization
 

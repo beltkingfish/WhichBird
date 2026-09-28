@@ -69,7 +69,7 @@ export function dailyBird(birds: Bird[], dateKey: string, pinnedId?: string | nu
   const k = number - 1;
   const cycle = Math.floor(k / n);
   const slot = ((k % n) + n) % n;
-  const deck = seededShuffle(pool, hashString(`lifer:${cycle}`));
+  const deck = seededShuffle(pool, hashString(`whichbird:${cycle}`));
   return { bird: deck[slot], number };
 }
 

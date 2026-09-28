@@ -5,7 +5,7 @@
 
 /* Flat field-guide look: paper-white, near-black ink, one deep teal accent, tight corners. */
 @plugin "daisyui/theme" {
-  name: "lifer";
+  name: "whichbird";
   default: true;
   color-scheme: light;
   --color-base-100: #fbfaf6;
@@ -39,7 +39,7 @@
 }
 
 @plugin "daisyui/theme" {
-  name: "lifer-dusk";
+  name: "whichbird-dusk";
   prefersdark: true;
   color-scheme: dark;
   --color-base-100: #141716;
@@ -90,11 +90,11 @@
   --muted: color-mix(in oklab, var(--color-base-content) 60%, var(--color-base-100));
   --card: var(--color-base-100);
 }
-[data-theme="lifer-dusk"] {
+[data-theme="whichbird-dusk"] {
   --lvl-0: #5d625d;
 }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="lifer"]) {
+  :root:not([data-theme="whichbird"]) {
     --lvl-0: #5d625d;
   }
 }

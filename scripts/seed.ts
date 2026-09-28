@@ -1,5 +1,5 @@
 /**
- * Seed Lifer from AviList + iNaturalist/Wikimedia.
+ * Seed WhichBird from AviList + iNaturalist/Wikimedia.
  *
  *   npm run seed -- --avilist data/raw/AviList-v2025.xlsx [options]
  *
@@ -93,7 +93,7 @@ async function main() {
 async function attachPhotos(birds: Bird[]) {
   const contact = process.env.SEED_CONTACT;
   if (!contact) console.warn("  ⚠ Set SEED_CONTACT so iNaturalist/Wikimedia know who to contact about this User-Agent");
-  const get = politeFetcher(`Lifer/0.1 (bird-guessing game seed script; ${contact ?? "no contact given"})`);
+  const get = politeFetcher(`WhichBird/0.1 (+https://whichbird.app; bird-guessing game seed script; ${contact ?? "no contact given"})`);
   const cache: Record<string, BirdPhoto | null> =
     !args["refresh-photos"] && existsSync(PHOTO_CACHE) ? JSON.parse(readFileSync(PHOTO_CACHE, "utf8")) : {};
   const saveCache = () => {

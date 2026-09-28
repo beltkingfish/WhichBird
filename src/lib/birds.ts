@@ -60,10 +60,10 @@ export async function loadBirds(pool = POOL_ID): Promise<BirdDataset> {
       .select("*")
       .contains("pools", [pool])
       .order("avilist_sequence", { ascending: true });
-    if (error) console.error("[lifer] Supabase bird_catalog query failed, using bundled data:", error.message);
+    if (error) console.error("[whichbird] Supabase bird_catalog query failed, using bundled data:", error.message);
     else if (data?.length) {
       return { source: "supabase", generatedAt: new Date().toISOString(), birds: (data as CatalogRow[]).map(rowToBird) };
-    } else console.warn("[lifer] Supabase has no birds yet (run `npm run seed`); using bundled data");
+    } else console.warn("[whichbird] Supabase has no birds yet (run `npm run seed`); using bundled data");
   }
   return fallback as BirdDataset;
 }
@@ -81,7 +81,7 @@ export async function loadPinnedPuzzles(): Promise<Record<string, string>> {
     .gte("puzzle_date", from)
     .lte("puzzle_date", to);
   if (error) {
-    console.error("[lifer] daily_puzzles query failed:", error.message);
+    console.error("[whichbird] daily_puzzles query failed:", error.message);
     return {};
   }
   const pinned: Record<string, string> = {};

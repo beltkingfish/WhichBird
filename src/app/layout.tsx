@@ -8,7 +8,8 @@ const barlowCondensed = Barlow_Condensed({ subsets: ["latin"], variable: "--font
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], variable: "--font-plex-mono", weight: ["400", "600"] });
 
 export const metadata: Metadata = {
-  title: "Lifer · daily bird puzzle",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://whichbird.app"),
+  title: "WhichBird · daily bird puzzle",
   description: "Guess the day's bird. Each guess shows how far up the tree of life it shares with the answer.",
 };
 

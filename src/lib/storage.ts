@@ -46,13 +46,13 @@ function write(key: string, value: unknown) {
   }
 }
 
-export const loadDaily = (dateKey: string) => read<DailyState>(`lifer:daily:${dateKey}`);
-export const saveDaily = (s: DailyState) => write(`lifer:daily:${s.dateKey}`, s);
-export const loadPractice = () => read<PracticeState>("lifer:practice");
-export const savePractice = (s: PracticeState) => write("lifer:practice", s);
-export const loadStats = () => ({ ...EMPTY_STATS, ...(read<Stats>("lifer:stats") ?? {}) });
-export const loadPhotoPref = () => read<boolean>("lifer:photo-hint") ?? false;
-export const savePhotoPref = (on: boolean) => write("lifer:photo-hint", on);
+export const loadDaily = (dateKey: string) => read<DailyState>(`whichbird:daily:${dateKey}`);
+export const saveDaily = (s: DailyState) => write(`whichbird:daily:${s.dateKey}`, s);
+export const loadPractice = () => read<PracticeState>("whichbird:practice");
+export const savePractice = (s: PracticeState) => write("whichbird:practice", s);
+export const loadStats = () => ({ ...EMPTY_STATS, ...(read<Stats>("whichbird:stats") ?? {}) });
+export const loadPhotoPref = () => read<boolean>("whichbird:photo-hint") ?? false;
+export const savePhotoPref = (on: boolean) => write("whichbird:photo-hint", on);
 
 function previousDay(dateKey: string): string {
   const [y, m, d] = dateKey.split("-").map(Number);
@@ -74,6 +74,6 @@ export function recordDailyWin(dateKey: string, guessCount: number): Stats {
     lastWinDate: dateKey,
     histogram: { ...stats.histogram, [bucket]: (stats.histogram[bucket] ?? 0) + 1 },
   };
-  write("lifer:stats", next);
+  write("whichbird:stats", next);
   return next;
 }

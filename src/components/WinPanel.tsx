@@ -86,7 +86,7 @@ export function WinPanel({ mode, target, puzzleNumber, levels, photoHintUsed, st
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: "var(--lvl-4)" }}>
-              Lifer · {n} {n === 1 ? "guess" : "guesses"}
+              New lifer · {n} {n === 1 ? "guess" : "guesses"}
             </p>
             <h2 className="display text-3xl uppercase">{target.common}</h2>
           </div>

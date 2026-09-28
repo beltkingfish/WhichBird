@@ -49,7 +49,7 @@ describe("AviList parsing", () => {
       const row = ws.addRow(r);
       row.getCell(6).value = { richText: [{ text: String(r[5]), font: { italic: true } }] };
     }
-    const file = path.join(mkdtempSync(path.join(tmpdir(), "lifer-")), "avilist.xlsx");
+    const file = path.join(mkdtempSync(path.join(tmpdir(), "whichbird-")), "avilist.xlsx");
     await wb.xlsx.writeFile(file);
     const species = await readAviList(file);
     expect(species.map((s) => s.english)).toEqual(["Yellow Warbler", "Cooper's Hawk"]);
