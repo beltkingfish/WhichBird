@@ -1,10 +1,11 @@
 /**
  * Seed WhichBird from AviList + iNaturalist/Wikimedia.
  *
- *   npm run seed -- --avilist data/raw/AviList-v2025.xlsx [options]
+ *   npm run seed -- [--avilist data/raw/AviList-v2025.xlsx] [options]
  *
  * Options
- *   --avilist <file>   AviList download (.xlsx or .csv). Required.
+ *   --avilist <file>   AviList download (.xlsx or .csv). Optional: without it the
+ *                      curated checklist's own taxonomy is used.
  *   --json             Also write data/birds.json (the app's offline fallback).
  *   --no-db            Skip Supabase (handy with --json for a local-only refresh).
  *   --no-photos        Skip photo lookups.
@@ -47,14 +48,38 @@ const { values: args } = parseArgs({
 });
 
 async function main() {
-  if (!args.avilist) fail("Pass the AviList spreadsheet: npm run seed -- --avilist path/to/AviList.xlsx");
+  const entries = checklistEntries();
+  let birds: Bird[];
+  if (!args.avilist) {
+    // No AviList file: seed straight from the curated checklist so the database can go live now.
+    console.warn("No --avilist file given: using the checklist's own taxonomy.");
+    console.warn("  Re-run later with --avilist <file> to switch to AviList names and sequence numbers.");
+    birds = entries.map((e, i) => birdFromChecklist(e.english, e.scientific, e.family, (i + 1) * 10));
+  } else {
+    birds = await taxonomyFromAviList(args.avilist, entries);
+  }
+  birds.sort((a, b) => a.seq - b.seq);
+  console.log(`  ${birds.length} birds in pool '${args.pool}'`);
 
-  // 1. Taxonomy from AviList, restricted to the curated pool.
-  console.log(`Reading ${args.avilist} …`);
-  const avilist = await readAviList(args.avilist!);
+  // 2. Photos: iNaturalist (CC0 / CC BY) first, Wikimedia Commons fallback.
+  if (!args["no-photos"]) await attachPhotos(birds);
+
+  // 3. Write.
+  if (args.json) {
+    const dataset: BirdDataset = { source: args.avilist ? "avilist" : "checklist", generatedAt: new Date().toISOString(), birds };
+    writeFileSync(path.join(ROOT, "data", "birds.json"), JSON.stringify(dataset, null, 1) + "\n");
+    console.log("Wrote data/birds.json");
+  }
+  if (!args["no-db"]) await writeSupabase(birds, args.pool!);
+  console.log("Done. Happy birding!");
+}
+
+/** Taxonomy from AviList, restricted to the curated pool. */
+async function taxonomyFromAviList(file: string, entries: ReturnType<typeof checklistEntries>): Promise<Bird[]> {
+  console.log(`Reading ${file} …`);
+  const avilist = await readAviList(file);
   console.log(`  ${avilist.length} species in AviList`);
 
-  const entries = checklistEntries();
   const { matched, unmatched } = matchChecklist(entries, avilist);
   const renamed = matched.filter((m) => m.via === "english" || m.species.english !== m.entry.english);
   for (const m of renamed) {
@@ -74,20 +99,7 @@ async function main() {
       console.warn("     kept with checklist taxonomy (use --strict to drop them)");
     }
   }
-  birds.sort((a, b) => a.seq - b.seq);
-  console.log(`  ${birds.length} birds in pool '${args.pool}'`);
-
-  // 2. Photos: iNaturalist (CC0 / CC BY) first, Wikimedia Commons fallback.
-  if (!args["no-photos"]) await attachPhotos(birds);
-
-  // 3. Write.
-  if (args.json) {
-    const dataset: BirdDataset = { source: "avilist", generatedAt: new Date().toISOString(), birds };
-    writeFileSync(path.join(ROOT, "data", "birds.json"), JSON.stringify(dataset, null, 1) + "\n");
-    console.log("Wrote data/birds.json");
-  }
-  if (!args["no-db"]) await writeSupabase(birds, args.pool!);
-  console.log("Done. Happy birding!");
+  return birds;
 }
 
 async function attachPhotos(birds: Bird[]) {
@@ -168,6 +180,16 @@ async function writeSupabase(birds: Bird[], pool: string) {
     .select("id, scientific_name");
   check(error);
   const birdIds = new Map((rows ?? []).map((r) => [r.scientific_name as string, r.id as number]));
+
+  // Drop this pool's tag from birds that are no longer in it (e.g. renamed when switching to
+  // AviList taxonomy), so the game never offers both the old and the new name.
+  const { data: tagged, error: tagErr } = await db.from("birds").select("id, scientific_name, pools").contains("pools", [pool]);
+  check(tagErr);
+  const stale = (tagged ?? []).filter((r) => !birdIds.has(r.scientific_name as string));
+  for (const r of stale) {
+    check((await db.from("birds").update({ pools: (r.pools as string[]).filter((p) => p !== pool) }).eq("id", r.id)).error);
+  }
+  if (stale.length) console.log(`  removed ${stale.length} birds no longer in pool '${pool}': ${stale.map((r) => r.scientific_name).join(", ")}`);
 
   const withPhotos = birds.filter((b) => b.photo);
   if (withPhotos.length) {

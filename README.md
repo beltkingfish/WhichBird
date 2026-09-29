@@ -113,6 +113,10 @@ the full AviList) with another tag in `birds.pools` and nothing in the schema ch
 
 ## Seeding from AviList
 
+**Fastest start:** `npm run seed` with no `--avilist` fills Supabase from the curated
+checklist's own taxonomy (plus photos). Run it again with `--avilist` whenever you like;
+birds that AviList renames are swapped in and the old names leave the pool.
+
 1. Download the AviList checklist (XLSX, the extended version is fine) from
    <https://www.avilist.org/checklist/> and save it as, for example,
    `data/raw/AviList-v2025.xlsx` (`data/raw/` is git-ignored).
@@ -184,6 +188,10 @@ you need them stable.
 
 Pages are statically rendered and revalidated hourly, so newly seeded birds appear
 within the hour, or immediately after a redeploy.
+
+**Check the connection:** open `/api/status` on the deployed site. `"dataSource": "supabase"`
+means the app is reading your database; `"checklist"` means it's still on the bundled
+fallback (variables missing at build time, or the database not seeded yet).
 
 ### Custom domain: whichbird.app on Cloudflare
 
